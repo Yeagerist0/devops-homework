@@ -39,7 +39,8 @@ hr "TEST: backend -> frontend (shared network, should PASS)"
 docker exec backend ping -c 3 frontend
 
 hr "TEST: backend -> database (shared network, should PASS)"
-docker exec backend sh -c 'for i in $(seq 20); do nc -z -w 2 database 3306 && break; sleep 3; done'
+# </dev/null so the wait loop does not swallow (and echo) terminal keystrokes
+docker exec backend sh -c 'for i in $(seq 20); do nc -z -w 2 database 3306 && break; sleep 3; done' </dev/null
 docker exec backend ping -c 3 database
 docker exec backend nc -zv -w 3 database 3306
 
@@ -70,7 +71,7 @@ cat > bind-mount/html/index.html <<'HTML'
 HTML
 docker run -d --name bind-nginx -p 8081:80 -v "$PWD/bind-mount/html":/usr/share/nginx/html:ro nginx:alpine
 docker inspect bind-nginx -f '{{range .Mounts}}Type={{.Type}} Source={{.Source}} Destination={{.Destination}} RW={{.RW}}{{end}}'
-for i in 1 2 3 4 5; do [ -n "$(curl -s http://localhost:8081)" ] && break; docker exec bind-nginx sleep 1; done
+for i in 1 2 3 4 5; do [ -n "$(curl -s http://localhost:8081)" ] && break; docker exec bind-nginx sleep 1 </dev/null; done
 echo "--- BEFORE edit ---"; curl -s http://localhost:8081
 
 cat > bind-mount/html/index.html <<'HTML'
