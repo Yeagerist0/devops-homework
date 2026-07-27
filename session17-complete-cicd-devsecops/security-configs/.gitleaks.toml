@@ -1,0 +1,8 @@
+title = "Gitleaks Scan Config"
+
+[allowlist]
+description = "Allow testing mock variables"
+paths = [
+  '''test/.*''',
+  '''package-lock\.json'''
+]

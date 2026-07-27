@@ -1,0 +1,16 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+rule_files:
+  - "alert-rules.yaml"
+
+scrape_configs:
+  - job_name: "kubernetes-nodes"
+    static_configs:
+      - targets: ["localhost:9100"] # Node Exporter
+
+  - job_name: "kubernetes-pods"
+    metrics_path: /metrics
+    static_configs:
+      - targets: ["app-service:8080"]

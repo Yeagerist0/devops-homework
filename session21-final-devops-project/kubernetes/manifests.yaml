@@ -1,0 +1,148 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: final-app-config
+  namespace: default
+data:
+  NODE_ENV: "production"
+  LOG_LEVEL: "info"
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: final-app-secret
+  namespace: default
+type: Opaque
+data:
+  DATABASE_URL: cG9zdGdyZXM6Ly9hZG1pbjpQYXNzMTIzQGRiOjU0MzIvYXBwZGI= # postgres://admin:Pass123@db:5432/appdb
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: app-data-pvc
+  namespace: default
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: final-devops-app
+  namespace: default
+  labels:
+    app: final-devops-app
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: final-devops-app
+  template:
+    metadata:
+      labels:
+        app: final-devops-app
+    spec:
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1001
+        fsGroup: 1001
+      containers:
+      - name: web
+        image: ghcr.io/yeagerist0/enterprise-devops-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        envFrom:
+        - configMapRef:
+            name: final-app-config
+        - secretRef:
+            name: final-app-secret
+        resources:
+          limits:
+            cpu: 300m
+            memory: 256Mi
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        startupProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          failureThreshold: 30
+          periodSeconds: 2
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8080
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 8080
+          initialDelaySeconds: 3
+          periodSeconds: 5
+        volumeMounts:
+        - name: app-storage
+          mountPath: /data
+      volumes:
+      - name: app-storage
+        persistentVolumeClaim:
+          claimName: app-data-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: final-devops-svc
+  namespace: default
+spec:
+  type: ClusterIP
+  selector:
+    app: final-devops-app
+  ports:
+  - port: 80
+    targetPort: 8080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: final-devops-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "false"
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: devops-final.local
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: final-devops-svc
+            port:
+              number: 80
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: final-devops-hpa
+  namespace: default
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: final-devops-app
+  minReplicas: 2
+  maxReplicas: 6
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      target:
+        type: Utilization
+        averageUtilization: 60

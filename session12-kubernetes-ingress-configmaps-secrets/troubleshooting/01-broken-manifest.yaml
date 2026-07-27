@@ -1,0 +1,40 @@
+# BROKEN MANIFEST SCENARIO:
+# Issue 1: Missing Secret Key reference ('DATABASE_KEY' does not exist in Secret)
+# Issue 2: Service port mismatch (Service targetPort is 8080 but container listens on 80)
+# Issue 3: Missing Ingress className
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broken-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broken-app
+  template:
+    metadata:
+      labels:
+        app: broken-app
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: app-db-credentials
+              key: NON_EXISTENT_KEY # Causes CreateContainerConfigError
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broken-svc
+spec:
+  selector:
+    app: broken-app
+  ports:
+  - port: 80
+    targetPort: 8080 # Port mismatch! Container is listening on 80
