@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: secured-microservice
+  labels:
+    app: secured-microservice
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: secured-microservice
+  template:
+    metadata:
+      labels:
+        app: secured-microservice
+    spec:
+      # Kubernetes Pod Security Standards (Restricted)
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 1000
+        fsGroup: 1000
+      containers:
+      - name: app
+        image: ghcr.io/yeagerist0/devsecops-secured-app:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8080
+        securityContext:
+          allowPrivilegeEscalation: false
+          readOnlyRootFilesystem: false
+          capabilities:
+            drop:
+            - ALL
+        resources:
+          limits:
+            cpu: 250m
+            memory: 128Mi
+          requests:
+            cpu: 100m
+            memory: 64Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: secured-microservice-svc
+spec:
+  selector:
+    app: secured-microservice
+  ports:
+  - port: 80
+    targetPort: 8080
