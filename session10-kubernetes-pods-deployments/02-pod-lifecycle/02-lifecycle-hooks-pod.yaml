@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: lifecycle-hooks-pod
+spec:
+  containers:
+  - name: hook-container
+    image: nginx:alpine
+    lifecycle:
+      postStart:
+        exec:
+          command: ["/bin/sh", "-c", "echo 'Container started at $(date)' > /usr/share/nginx/html/status.html"]
+      preStop:
+        exec:
+          command: ["/bin/sh", "-c", "echo 'Container stopping, cleaning up...' && sleep 5"]

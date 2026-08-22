@@ -1,0 +1,13 @@
+{
+  "name": "devops-cicd-demo-app",
+  "version": "1.0.0",
+  "description": "Demo web application for CI/CD with GitHub Actions",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "node test.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

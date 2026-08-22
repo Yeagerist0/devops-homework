@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: stateful-redis
+spec:
+  serviceName: redis-headless-svc
+  replicas: 2
+  selector:
+    matchLabels:
+      app: redis-db
+  template:
+    metadata:
+      labels:
+        app: redis-db
+    spec:
+      containers:
+      - name: redis
+        image: redis:alpine
+        ports:
+        - containerPort: 6379
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-headless-svc
+spec:
+  clusterIP: None  # Headless: No virtual cluster IP allocated; DNS directly returns all Pod IPs
+  selector:
+    app: redis-db
+  ports:
+  - port: 6379
+    targetPort: 6379

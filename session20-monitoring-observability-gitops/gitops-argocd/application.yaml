@@ -1,0 +1,25 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: devops-production-app
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Yeagerist0/devops-homework.git
+    targetRevision: HEAD
+    path: session15-helm/my-webapp
+    helm:
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true     # Automatically deletes resources removed from Git
+      selfHeal: true  # Reverts manual 'kubectl edit/apply' drift back to Git state
+    syncOptions:
+      - CreateNamespace=true

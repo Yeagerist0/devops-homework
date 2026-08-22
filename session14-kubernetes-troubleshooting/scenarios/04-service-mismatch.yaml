@@ -1,0 +1,25 @@
+# BROKEN: Service selector says 'app: my-app', but pod label says 'app: my-application'
+# Endpoints list is empty <none>!
+apiVersion: v1
+kind: Pod
+metadata:
+  name: backend-app
+  labels:
+    app: my-application # Label mismatch
+spec:
+  containers:
+  - name: web
+    image: nginx:alpine
+    ports:
+    - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-mismatch-svc
+spec:
+  selector:
+    app: my-app # Looking for 'app: my-app'
+  ports:
+  - port: 80
+    targetPort: 80

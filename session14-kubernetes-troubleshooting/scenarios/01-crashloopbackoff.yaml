@@ -1,0 +1,15 @@
+# BROKEN: Command exits with status code 1, triggering CrashLoopBackOff
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-crashloop
+  labels:
+    issue: crashloop
+spec:
+  containers:
+  - name: failing-container
+    image: busybox:1.36
+    command: ["sh", "-c", "echo 'Starting up... error: missing required database connection config!' >&2; exit 1"]
+---
+# FIXED:
+# command: ["sh", "-c", "echo 'Config loaded properly. Running service...'; sleep 3600"]

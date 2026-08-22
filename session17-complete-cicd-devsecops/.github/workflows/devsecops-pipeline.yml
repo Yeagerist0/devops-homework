@@ -1,0 +1,95 @@
+name: DevSecOps Shift-Left Pipeline
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  # ==========================================
+  # 1. SECRET SCANNING
+  # ==========================================
+  secret-scan:
+    name: Secret Scanning (Gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Gitleaks Action
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==========================================
+  # 2. SAST (STATIC APPLICATION SECURITY TESTING)
+  # ==========================================
+  sast:
+    name: SAST (Semgrep)
+    needs: secret-scan
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: session17-complete-cicd-devsecops/app
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Semgrep
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" returntocorp/semgrep semgrep --config=auto /src/session17-complete-cicd-devsecops/app
+
+  # ==========================================
+  # 3. SCA (SOFTWARE COMPOSITION ANALYSIS)
+  # ==========================================
+  sca:
+    name: SCA Vulnerability Scan (Trivy FS)
+    needs: sast
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run Trivy filesystem scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: 'session17-complete-cicd-devsecops/app'
+          format: 'table'
+          exit-code: '0'
+          severity: 'CRITICAL,HIGH'
+
+  # ==========================================
+  # 4. CONTAINER IMAGE BUILD & SCAN
+  # ==========================================
+  container-security:
+    name: Container Build & Image Scan
+    needs: sca
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build Local Image
+        run: |
+          docker build -t devsecops-secured-app:${{ github.sha }} session17-complete-cicd-devsecops/app
+
+      - name: Scan Image with Trivy
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'devsecops-secured-app:${{ github.sha }}'
+          format: 'table'
+          exit-code: '1' # Fails build if CRITICAL vulnerabilities exist (Security Gate)
+          ignore-unfixed: true
+          severity: 'CRITICAL'
+
+  # ==========================================
+  # 5. DEPLOYMENT TO KUBERNETES
+  # ==========================================
+  deploy-k8s:
+    name: Deploy to Kubernetes
+    needs: container-security
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Dry-run Apply Manifests
+        run: |
+          echo "Simulating kubectl apply -f session17-complete-cicd-devsecops/k8s/deployment.yaml"
+          echo "Deployment successfully rolled out to cluster!"
