@@ -8,6 +8,28 @@ Resources:
 
 ---
 
+## Screenshots of the full run
+
+`./reproduce.sh` running all four tasks end to end on my machine.
+
+**Task 1 - the three networks, the three containers, backend sitting on two networks, and the connectivity tests:**
+
+![task 1 - networks and connectivity](outputs/terminal-1-networks-and-connectivity.png)
+
+**frontend -> database failing as expected, then Task 2 apache on the host network and the start of Task 3:**
+
+![task 2 - host network, task 3 begins](outputs/terminal-2-host-network-and-bind-mount.png)
+
+**Task 3 finishing - the file edited live with `RestartCount=0`, the read-only mount rejecting a write, and the cleanup:**
+
+![task 3 - live edit and cleanup](outputs/terminal-3-bind-mount-live-edit-and-cleanup.png)
+
+Note in the second screenshot: `port 80 before: nothing listening` -> `port 80 after: tcp LISTEN 0 511 *:80`, with the PORTS column in `docker ps` completely empty. That's the whole point of `--network host` - nothing was mapped, apache just took the host's port 80 directly.
+
+And in the third: `StartedAt=2026-09-02T05:33:12` with `RestartCount=0` *after* the edit shows up in the page. The container was never restarted.
+
+---
+
 ## Task 1: Docker Container Networking
 
 Three containers, three user defined bridge networks, and the backend sits on two of them.
