@@ -205,6 +205,11 @@ $ curl http://100.129.173.211:80        # host's own LAN IP, works too
 <p>It works!</p>
 ```
 
+**Browser at http://localhost:80 - Apache reached with no port mapping at all:**
+
+![apache on the host network, port 80](outputs/host-network-apache-port80.jpg)
+
+
 ### bridge vs host
 
 |  | bridge (default) | host |
@@ -278,6 +283,11 @@ $ curl http://localhost:8081
 </body>
 </html>
 ```
+
+**Browser at http://localhost:8081 after editing the file on the host:**
+
+![bind mount reflecting the live edit](outputs/bind-mount-after-live-edit.jpg)
+
 
 Proof the container was never restarted - `StartedAt` is the same timestamp as when it was created and the restart counter is still 0:
 

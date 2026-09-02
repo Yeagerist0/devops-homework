@@ -1,6 +1,6 @@
 # DevOps Homework
 
-My submissions for the DevOps sessions. Every command output in these files was run on my own machine (Kali Linux, Docker 28.5.2) and pasted as is - nothing is copied from the slides.
+My submissions for the DevOps sessions. Every command output in these files was run on my own machine (Kali Linux, Docker 28.5.2) and pasted as is - nothing is copied from the slides. Browser screenshots of each running container are in the `outputs/` folders.
 
 ## Homework doc
 https://docs.google.com/document/d/1cjXFYf2Thm8cBEN-0C48B-v02cj3jGLd47lcO18prHE/edit?usp=sharing

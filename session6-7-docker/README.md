@@ -64,6 +64,10 @@ $ curl http://localhost:3001
 
 `COPY package*.json` before `COPY . .` is deliberate - Docker caches each layer, so if only `server.js` changes the `npm install` layer is reused instead of reinstalling everything.
 
+**Browser at http://localhost:3001:**
+
+![http://localhost:3001](outputs/nodejs-app-3001.jpg)
+
 ## 2. Python app (`python-app`)
 
 FastAPI served by uvicorn.
@@ -86,6 +90,10 @@ $ curl http://localhost:8001
 
 `--host 0.0.0.0` in the CMD matters. uvicorn defaults to 127.0.0.1, which inside a container means "only reachable from inside this container" - the port mapping would look fine and the page still wouldn't load.
 
+**Browser at http://localhost:8001:**
+
+![http://localhost:8001](outputs/python-app-8001.jpg)
+
 ## 3. Java app (`java-app`)
 
 Java's built-in `com.sun.net.httpserver.HttpServer`, no Maven or Gradle needed for a hello world.
@@ -106,6 +114,10 @@ $ curl http://localhost:8083
 ```
 
 364MB, the biggest of the lot, because the image ships a full JDK. A real app would compile in a JDK stage and run on a JRE stage - which is exactly the multi-stage idea below.
+
+**Browser at http://localhost:8083:**
+
+![http://localhost:8083](outputs/java-app-8083.jpg)
 
 ## 4. Apache app (`Apache-app`)
 
@@ -133,6 +145,10 @@ $ curl http://localhost:8084
 ```
 
 Apache's docroot is `/usr/local/apache2/htdocs`, nginx's is `/usr/share/nginx/html`. Mixing those two up is the usual reason you get the default page instead of yours.
+
+**Browser at http://localhost:8084:**
+
+![http://localhost:8084](outputs/apache-app-8084.jpg)
 
 ## 5. React app (`React-app`)
 
@@ -173,7 +189,11 @@ $ curl -s http://localhost:8085/assets/index-u2Cd2JyX.js | grep -o 'Hello World[
 Hello World from Docker!
 ```
 
-In a browser at http://localhost:8085 the page shows **Hello World from Docker!**
+And in a browser it renders properly - screenshot below.
+
+**Browser at http://localhost:8085:**
+
+![http://localhost:8085](outputs/react-app-8085.jpg)
 
 ## 6. Nginx app (`nginx-app`)
 
@@ -199,6 +219,10 @@ $ curl http://localhost:8082
 ```
 
 ---
+
+**Browser at http://localhost:8082:**
+
+![http://localhost:8082](outputs/nginx-app-8082.jpg)
 
 ## Multi-stage build task
 
@@ -233,6 +257,11 @@ $ docker run -d --name multi-stage -p 8080:3000 multi-stage-build
 $ curl http://localhost:8080
 <h1>Hello World from Docker Multi-Stage Build!</h1>
 ```
+
+**Browser at http://localhost:8080:**
+
+![multi-stage build on port 8080](outputs/multi-stage-8080.jpg)
+
 
 ### Does multi-stage actually make the image smaller
 
