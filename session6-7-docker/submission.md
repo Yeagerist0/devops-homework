@@ -1,7 +1,7 @@
 # Docker Multi-Stage Build - Submission
 
 **Name:** Hitarth Jain
-**Enrollment Number:** _<!-- TODO: fill in your enrollment number before submitting -->_
+**Enrollment Number:** 24BCS10299
 
 ---
 
@@ -61,6 +61,9 @@ $ curl http://localhost:8080
 <h1>Hello World from Docker Multi-Stage Build!</h1>
 ```
 
+![multi-stage build running on port 8080](outputs/multi-stage-8080.jpg)
+
+
 Verified in the browser at **http://localhost:8080** - the page shows
 **Hello World from Docker multi-stage build**.
 
@@ -117,6 +120,20 @@ hello-java     java-app            Up 19 seconds   0.0.0.0:8083->8080/tcp
 hello-python   python-app          Up 21 seconds   0.0.0.0:8001->8000/tcp
 hello-node     nodejs-app          Up 22 seconds   0.0.0.0:3001->3000/tcp
 ```
+
+### Screenshots of each app in the browser
+
+| Node.js (:3001) | Python (:8001) |
+|---|---|
+| ![node](outputs/nodejs-app-3001.jpg) | ![python](outputs/python-app-8001.jpg) |
+
+| Java (:8083) | Apache (:8084) |
+|---|---|
+| ![java](outputs/java-app-8083.jpg) | ![apache](outputs/apache-app-8084.jpg) |
+
+| React (:8085) | Nginx (:8082) |
+|---|---|
+| ![react](outputs/react-app-8085.jpg) | ![nginx](outputs/nginx-app-8082.jpg) |
 
 ### Curl output for each
 
