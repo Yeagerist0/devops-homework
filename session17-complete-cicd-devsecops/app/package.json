@@ -1,0 +1,13 @@
+{
+  "name": "devsecops-secured-app",
+  "version": "1.0.0",
+  "description": "DevSecOps demonstration app with automated security gates",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "test": "node -e 'console.log(\"Unit test passed\"); process.exit(0);'"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

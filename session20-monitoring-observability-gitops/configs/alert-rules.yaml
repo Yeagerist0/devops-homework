@@ -1,0 +1,29 @@
+groups:
+  - name: application_alerts
+    rules:
+      - alert: HighCpuUsage
+        expr: 100 - (avg by (instance) (rate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 85
+        for: 2m
+        labels:
+          severity: warning
+        annotations:
+          summary: "Host high CPU load detected"
+          description: "CPU utilization has exceeded 85% for more than 2 minutes."
+
+      - alert: PodMemoryThresholdExceeded
+        expr: container_memory_usage_bytes{container!="POD"} / container_spec_memory_limit_bytes > 0.90
+        for: 1m
+        labels:
+          severity: critical
+        annotations:
+          summary: "Container nearing OOMKilled"
+          description: "Container {{ $labels.container }} in Pod {{ $labels.pod }} is exceeding 90% memory limit."
+
+      - alert: ServiceDown
+        expr: up == 0
+        for: 30s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Target endpoint down"
+          description: "Service target {{ $labels.instance }} is unreachable."

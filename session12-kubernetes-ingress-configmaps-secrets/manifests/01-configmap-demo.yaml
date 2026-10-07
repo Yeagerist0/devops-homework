@@ -1,0 +1,40 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  APP_ENV: "production"
+  LOG_LEVEL: "debug"
+  APP_PORT: "8080"
+  app.properties: |
+    database.pool.size=20
+    cache.enabled=true
+    feature.dark_mode=enabled
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: configmap-pod-demo
+spec:
+  containers:
+  - name: test-app
+    image: busybox:1.36
+    command: ["sh", "-c", "echo Env Var: $APP_ENV; echo Config File:; cat /etc/config/app.properties; sleep 3600"]
+    env:
+    - name: APP_ENV
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: APP_ENV
+    - name: LOG_LEVEL
+      valueFrom:
+        configMapKeyRef:
+          name: app-config
+          key: LOG_LEVEL
+    volumeMounts:
+    - name: config-volume
+      mountPath: /etc/config
+  volumes:
+  - name: config-volume
+    configMap:
+      name: app-config

@@ -1,0 +1,39 @@
+# FIXED MANIFEST:
+# Fix 1: Changed secret key to existing 'DB_PASSWORD'
+# Fix 2: Aligned Service targetPort to 80
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: broken-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: broken-app
+  template:
+    metadata:
+      labels:
+        app: broken-app
+    spec:
+      containers:
+      - name: web
+        image: nginx:alpine
+        ports:
+        - containerPort: 80
+        env:
+        - name: DB_PASS
+          valueFrom:
+            secretKeyRef:
+              name: app-db-credentials
+              key: DB_PASSWORD # Correct key
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: broken-svc
+spec:
+  selector:
+    app: broken-app
+  ports:
+  - port: 80
+    targetPort: 80 # Aligned to container port 80

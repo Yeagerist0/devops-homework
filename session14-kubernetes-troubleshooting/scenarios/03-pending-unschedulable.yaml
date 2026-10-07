@@ -1,0 +1,17 @@
+# BROKEN: Requests 64 CPUs which exceeds node capacity -> Pod remains Pending (0/1 nodes available: Insufficient cpu)
+apiVersion: v1
+kind: Pod
+metadata:
+  name: broken-pending-cpu
+spec:
+  containers:
+  - name: heavy-app
+    image: nginx:alpine
+    resources:
+      requests:
+        cpu: "64" # Node only has 2 CPUs
+---
+# FIXED:
+# resources:
+#   requests:
+#     cpu: "100m"

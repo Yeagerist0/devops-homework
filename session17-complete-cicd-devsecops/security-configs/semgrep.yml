@@ -1,0 +1,7 @@
+rules:
+  - id: detect-hardcoded-secret
+    pattern: |
+      const $SECRET = "..."
+    message: "Hardcoded secret pattern detected in source file."
+    severity: WARNING
+    languages: [javascript, typescript]
